@@ -21,14 +21,14 @@ internal class CharacterApi(private val client: HttpClient) {
      * @throws HttpException if the request fails or if the status code is not [HttpStatusCode.OK].
      */
     suspend fun getCharacters(page: Int?): PaginatedResponse<CharacterResponse> = client
-        .get("character/") {
-            if (page != null)
+        .get("character/") { // Effectue une requête GET sur l'endpoint `character/`.
+            if (page != null) // Si un numéro de page est fourni,
                 url {
-                    parameter("page", page)
+                    parameter("page", page) // ajoute le paramètre `page` à l'URL de la requête.
                 }
         }
-        .accept(HttpStatusCode.OK)
-        .body()
+        .accept(HttpStatusCode.OK) // Attend un code de réponse HTTP 200 OK.
+        .body() // Extrait le corps de la réponse et le désérialise en `PaginatedResponse<CharacterResponse>`.
 
     /**
      * Fetches the details of a character with the given ID from the service.
@@ -38,7 +38,7 @@ internal class CharacterApi(private val client: HttpClient) {
      * @throws HttpException if the request fails or if the status code is not [HttpStatusCode.OK].
      */
     suspend fun getCharacter(id: Int): CharacterResponse? = client
-        .get("character/$id")
-        .accept(HttpStatusCode.OK)
-        .body()
+        .get("character/$id") // Effectue une requête GET sur l'endpoint `character/{id}`.
+        .accept(HttpStatusCode.OK) // Attend un code de réponse HTTP 200 OK.
+        .body() // Extrait le corps de la réponse et le désérialise en `CharacterResponse`.
 }

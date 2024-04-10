@@ -27,11 +27,19 @@ val dataModule = module {
 
     single<RealmDatabase> { RMDatabase() }
 
+    /**
+     * Add Injection dependancies for Character
+     */
+
     single { CharacterLocal(get()) }
 
     single { CharacterApi(get()) }
 
     single<CharacterRepository> { CharacterRepositoryImpl(get(), get(), get()) }
+
+    /**
+     * Add Injection dependancies for Episode
+     */
 
     single { EpisodeLocal(get()) }
 

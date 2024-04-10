@@ -1,5 +1,6 @@
 package org.mathieu.cleanrmapi.data.local.objects
 
+import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
@@ -30,21 +31,24 @@ import org.mathieu.cleanrmapi.domain.models.episode.Episode
  */
 internal class CharacterObject: RealmObject {
     @PrimaryKey
-    var id: Int = -1
-    var name: String = ""
-    var status: String = ""
-    var species: String = ""
-    var type: String = ""
-    var gender: String = ""
-    var originName: String = ""
-    var originId: Int = -1
-    var locationName: String = ""
-    var locationId: Int = -1
-    var image: String = ""
-    var created: String = ""
-    var episode: List<Episode> = emptyList()
+    var id: Int = -1  // Primary key for the Realm object, defaulting to -1.
+    var name: String = ""  // Character's name.
+    var status: String = ""  // Character's status (e.g., 'Alive', 'Dead').
+    var species: String = ""  // Character's species.
+    var type: String = ""  // Type or subspecies of the character.
+    var gender: String = ""  // Character's gender.
+    var originName: String = ""  // Name of the character's origin location.
+    var originId: Int = -1  // ID of the character's origin location.
+    var locationName: String = ""  // Name of the character's current location.
+    var locationId: Int = -1  // ID of the character's current location.
+    var image: String = ""  // URL to the character's image.
+    var created: String = ""  // Timestamp of when the character was created in the database.
+    var episode: RealmList<EpisodeObject> = realmListOf() // List of episodes associated with the character.
 }
 
+/**
+ * Extension function for `CharacterResponse` to convert it into a `CharacterObject`.
+ */
 internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.id = id
     obj.name = name
@@ -53,23 +57,27 @@ internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.type = type
     obj.gender = gender
     obj.originName = origin.name
+    // Parses the origin ID from the URL, defaults to -1 if parsing fails.
     obj.originId = tryOrNull { origin.url.split("/").last().toInt() } ?: -1
     obj.locationName = location.name
+    // Parses the location ID from the URL, defaults to -1 if parsing fails.
     obj.locationId = tryOrNull { location.url.split("/").last().toInt() } ?: -1
     obj.image = image
     obj.created = created
-    obj.episode = episode
 }
 
+/**
+ * Extension function to convert `CharacterObject` to `Character` model.
+ */
 internal fun CharacterObject.toModel() = Character(
     id = id,
     name = name,
-    status = tryOrNull { CharacterStatus.valueOf(status) } ?: CharacterStatus.Unknown,
+    status = tryOrNull { CharacterStatus.valueOf(status) } ?: CharacterStatus.Unknown,  // Converts the string status to enum, defaulting to Unknown.
     species = species,
     type = type,
-    gender = tryOrNull { CharacterGender.valueOf(gender) } ?: CharacterGender.Unknown,
+    gender = tryOrNull { CharacterGender.valueOf(gender) } ?: CharacterGender.Unknown,  // Converts the string gender to enum, defaulting to Unknown.
     origin = originName to originId,
     location = locationName to locationId,
     avatarUrl = image,
-    episode = episode
+    episode = emptyList()
 )

@@ -14,6 +14,7 @@ import org.mathieu.cleanrmapi.data.local.objects.toRealmObject
 import org.mathieu.cleanrmapi.data.remote.CharacterApi
 import org.mathieu.cleanrmapi.data.remote.responses.CharacterResponse
 import org.mathieu.cleanrmapi.domain.models.character.Character
+import org.mathieu.cleanrmapi.domain.models.episode.Episode
 import org.mathieu.cleanrmapi.domain.repositories.CharacterRepository
 
 private const val CHARACTER_PREFS = "character_repository_preferences"
@@ -29,11 +30,18 @@ internal class CharacterRepositoryImpl(
     private val characterLocal: CharacterLocal
 ) : CharacterRepository {
 
+    /**
+     * Retrieves all the characters
+     *
+     * Flow<List<Character>>: Le type de retour de la fonction, est un Flow qui émet des listes d'objets Character. Un Flow est un type utilisé dans Kotlin pour représenter un flux asynchrone de données.
+     *
+     * @return The List<[Character]> representing the episodes.
+     */
     override suspend fun getCharacters(): Flow<List<Character>> =
         characterLocal
             .getCharacters()
-            .mapElement(transform = CharacterObject::toModel)
-            .also { if (it.first().isEmpty()) fetchNext() }
+            .mapElement(transform = CharacterObject::toModel) // Convertit les objets en modèles.
+            .also { if (it.first().isEmpty()) fetchNext() } // Charge le prochain lot si nécessaire.
 
 
     /**
@@ -54,20 +62,23 @@ internal class CharacterRepositoryImpl(
 
         if (page != -1) {
 
-            val response = characterApi.getCharacters(page)
+            val response = characterApi.getCharacters(page) // Appelle l'API.
 
             val nextPageToLoad = response.info.next?.split("?page=")?.last()?.toInt() ?: -1
 
-            context.dataStore.edit { prefs -> prefs[nextPage] = nextPageToLoad }
+            context.dataStore.edit { prefs -> prefs[nextPage] = nextPageToLoad } // Met à jour la page suivante.
 
             val objects = response.results.map(transform = CharacterResponse::toRealmObject)
 
-            characterLocal.saveCharacters(objects)
+            characterLocal.saveCharacters(objects) // Sauvegarde les personnages dans le stockage local.
         }
 
     }
 
 
+    /**
+     * Fonction pour charger plus de personnages, appelant `fetchNext`.
+     */
     override suspend fun loadMore() = fetchNext()
 
 
@@ -85,25 +96,30 @@ internal class CharacterRepositoryImpl(
      * @throws Exception If the character cannot be found both locally and via the API.
      */
     override suspend fun getCharacter(id: Int): Character =
-        characterLocal.getCharacter(id)?.toModel()
+        characterLocal.getCharacter(id)?.toModel() // Essaye de le trouver localement.
             ?: characterApi.getCharacter(id = id)?.let { response ->
                 val obj = response.toRealmObject()
-                characterLocal.insert(obj)
+                characterLocal.insert(obj) // Stocke localement si trouvé via l'API.
                 obj.toModel()
             }
-            ?: throw Exception("Character not found.")
+            ?: throw Exception("Character not found.") // Lance une exception si le personnage n'est pas trouvé.
 
 
 }
 
-
+/**
+ * Fonction générique pour tenter une opération et retourner null en cas d'exception.
+ */
 fun <T> tryOrNull(block: () -> T) = try {
     block()
 } catch (_: Exception) {
     null
 }
 
+/**
+ * Fonction d'extension pour transformer les éléments d'un Flow.
+  */
 inline fun <T, R> Flow<List<T>>.mapElement(crossinline transform: suspend (value: T) -> R): Flow<List<R>> =
     this.map { list ->
-        list.map { element -> transform(element) }
+        list.map { element -> transform(element) }  // Transforme chaque élément de la liste.
     }

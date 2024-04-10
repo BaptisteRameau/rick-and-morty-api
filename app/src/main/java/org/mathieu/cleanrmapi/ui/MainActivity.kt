@@ -31,20 +31,22 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// A composable function defining the main content of the app.
 @Composable
 private fun MainContent() {
-
+    // Creates a navigation controller for managing navigation in the app.
     val navController = rememberNavController()
 
-    //https://developer.android.com/jetpack/compose/navigation?hl=fr
+    // Sets up a navigation host for managing navigation between composables.
     NavHost(navController = navController, startDestination = "characters") {
-
+        // Defines a navigation route for the characters list screen.
         composable(Destination.Characters) { CharactersScreen(navController) }
 
+        // Defines a navigation route for character details, with a dynamic ID parameter.
         composable(
             destination = Destination.CharacterDetails()
         ) { backStackEntry ->
-
+            // Displays the character details screen, getting the character ID from navigation arguments.
             CharacterDetailsScreen(
                 navController = navController,
                 id = backStackEntry.arguments?.getInt("characterId") ?: -1
