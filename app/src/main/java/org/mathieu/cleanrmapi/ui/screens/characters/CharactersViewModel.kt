@@ -1,6 +1,8 @@
 package org.mathieu.cleanrmapi.ui.screens.characters
 
 import android.app.Application
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.koin.core.component.inject
 import org.mathieu.cleanrmapi.domain.models.character.Character
 import org.mathieu.cleanrmapi.domain.repositories.CharacterRepository
@@ -38,6 +40,12 @@ class CharactersViewModel(application: Application) : ViewModel<CharactersState>
     fun handleAction(action: CharactersAction) {
         when(action) {
             is CharactersAction.SelectedCharacter -> selectedCharacter(action.character)
+        }
+    }
+
+    fun loadMoreCharacters() {
+        viewModelScope.launch {
+            characterRepository.loadMore()
         }
     }
 

@@ -61,7 +61,8 @@ fun CharactersScreen(navController: NavController) {
 
     CharactersContent(
         state = state,
-        onAction = viewModel::handleAction
+        onAction = viewModel::handleAction,
+        loadMore = viewModel::loadMoreCharacters
     )
 
 }
@@ -71,7 +72,8 @@ fun CharactersScreen(navController: NavController) {
 @Composable
 private fun CharactersContent(
     state: UIState = UIState(),
-    onAction: (UIAction) -> Unit = { }
+    onAction: (UIAction) -> Unit = { },
+    loadMore: () -> Unit = { }
 ) = Scaffold(topBar = {
     Text(
         modifier = Modifier
@@ -116,6 +118,18 @@ private fun CharactersContent(
                     )
                 }
 
+                if (state.isLoading) {
+                    item { /* Loading indicator UI */ }
+                } else if (state.characters.isNotEmpty()) {
+                    item("loadMore") {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            Text("Loading more...", textAlign = TextAlign.Center)
+                            LaunchedEffect(Unit) {
+                                loadMore()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
