@@ -31,7 +31,7 @@ internal data class CharacterResponse(
     val image: String,
     val episode: List<String>,
     val url: String,
-    val created: String,
+    val created: String
 )
 
 @Serializable

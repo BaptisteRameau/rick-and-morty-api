@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
+import org.mathieu.cleanrmapi.domain.models.episode.Episode
 import org.mathieu.cleanrmapi.ui.core.composables.PreviewContent
 import org.mathieu.cleanrmapi.ui.core.theme.Purple40
 
@@ -141,7 +142,9 @@ private fun CharacterDetailsContent(
                 }
 
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     SubcomposeAsyncImage(
@@ -156,6 +159,10 @@ private fun CharacterDetailsContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(text = state.name)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    EpisodeList(episodes = state.episodes)
                 }
 
 
@@ -164,6 +171,36 @@ private fun CharacterDetailsContent(
     }
 }
 
+@Composable
+fun EpisodeList(episodes: List<Episode>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        for (episode in episodes) {
+            EpisodeItem(episode)
+        }
+    }
+}
+
+@Composable
+fun EpisodeItem(episode: Episode) {
+    Row(
+        modifier = Modifier
+            .padding(all = 8.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = episode.name,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = episode.episode,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        Text(
+            text = episode.air_date,
+        )
+    }
+}
 
 @Preview
 @Composable

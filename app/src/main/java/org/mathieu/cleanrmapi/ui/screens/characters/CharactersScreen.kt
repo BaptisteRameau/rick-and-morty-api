@@ -160,7 +160,7 @@ private fun CharacterCard(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text(text = character.name)
+        Text(text = character.episode.toString())
 
     }
 
